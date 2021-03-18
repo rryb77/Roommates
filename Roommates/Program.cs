@@ -151,8 +151,18 @@ namespace Roommates
                         Roommate roomie = roommateRepo.GetById(roommateChoice);
                         Chore chorie = choreRepo.GetById(choreChoice);
 
-                        Console.WriteLine($"The {chorie.Name} was assigned to the {roomie.FirstName} {roomie.LastName}!");
+                        Console.WriteLine($"The '{chorie.Name}' chore was assigned to {roomie.FirstName} {roomie.LastName}!");
                         
+                        Console.Write("Press any key to continue");
+                        Console.ReadKey();
+                        break;
+
+                    case ("Get Chore Count"):
+                        List<ChoreCount> choreCount = choreRepo.GetChoreCounts();
+                        foreach(ChoreCount c in choreCount)
+                        {
+                            Console.WriteLine($"{c.Name}: {c.NumberOfChores}");
+                        };
                         Console.Write("Press any key to continue");
                         Console.ReadKey();
                         break;
@@ -180,6 +190,7 @@ namespace Roommates
                 "Search for roommate",
                 "Show all unassigned chores",
                 "Assign chore to roommate",
+                "Get Chore Count",
                 "Exit"
             };
 

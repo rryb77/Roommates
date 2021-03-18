@@ -115,6 +115,8 @@ namespace Roommates.Repositories
                                           VALUES (@name)";
                     cmd.Parameters.AddWithValue("name", chore.Name);
                     int id = (int)cmd.ExecuteScalar();
+
+                    chore.Id = id;
                 }
             }
         }
@@ -155,14 +157,55 @@ namespace Roommates.Repositories
         {
             using(SqlConnection conn = Connection)
             {
+                conn.Open();
                 using(SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"INSERT INTO RoommateChore (RoommateId, ChoreId)
                                             VALUES (@roommateId, @choreId)";
                     cmd.Parameters.AddWithValue("@roommateId", roommateId);
                     cmd.Parameters.AddWithValue("@choreId", choreId);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
+
+        
+        public List<ChoreCount> GetChoreCounts()
+        {
+            using(SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT COUNT(c.Name) as NumberOfChores, r.FirstName
+                                            FROM Roommate r
+                                            LEFT JOIN RoommateChore rc on rc.RoommateId = r.Id
+                                            LEFT JOIN Chore c on c.Id = rc.ChoreId
+                                        GROUP BY r.Id, r.FirstName";
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<ChoreCount> theChoreCount = new List<ChoreCount>();
+
+                    while(reader.Read())
+                    {
+                        ChoreCount choreCount = new ChoreCount
+                        {
+                            Name = reader.GetString(reader.GetOrdinal("FirstName")),
+                            NumberOfChores = reader.GetInt32(reader.GetOrdinal("NumberOfChores")),
+                        };
+
+                        theChoreCount.Add(choreCount);
+
+                    }
+
+                    reader.Close();
+                    return theChoreCount;
+                }
+            }
+        }
+        
     }
 }
